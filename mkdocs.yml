@@ -1,0 +1,118 @@
+site_name: DafelHub Documentation
+site_description: Enterprise SaaS Consulting Hub with Spec-Driven Development
+site_author: Dafel Consulting
+site_url: https://dabtcavila.github.io/DafelHub
+
+# Repository
+repo_name: DabtcAvila/DafelHub
+repo_url: https://github.com/DabtcAvila/DafelHub
+
+# Theme configuration
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.select
+    - content.tabs.link
+  
+  icon:
+    logo: material/rocket-launch
+    repo: fontawesome/brands/github
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - meta
+
+# Plugins
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_source: true
+            show_signature_annotations: true
+
+# Navigation
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+    - Configuration: getting-started/configuration.md
+  - Features:
+    - Spec-Driven Development: features/spec-driven.md
+    - Multi-Agent AI: features/multi-agent.md
+    - Enterprise Security: features/security.md
+    - Monitoring: features/monitoring.md
+  - API Reference:
+    - Core: api/core.md
+    - CLI: api/cli.md
+    - Services: api/services.md
+    - Agents: api/agents.md
+  - Tutorials:
+    - Basic Project: tutorials/basic-project.md
+    - AI Agent Setup: tutorials/agent-setup.md
+    - Deployment: tutorials/deployment.md
+  - Architecture:
+    - Overview: architecture/overview.md
+    - Database Models: architecture/models.md
+    - Agent Orchestration: architecture/agents.md
+  - Contributing: contributing.md
+  - Changelog: changelog.md
+
+# Extra
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/DabtcAvila/DafelHub
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com
+    - icon: fontawesome/brands/linkedin
+      link: https://linkedin.com
+  
+  analytics:
+    provider: google
+    property: G-XXXXXXXXXX
+
+# Copyright
+copyright: Copyright &copy; 2025 DafelHub - Enterprise SaaS Platform
