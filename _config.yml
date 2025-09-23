@@ -1,0 +1,77 @@
+# GitHub Pages Configuration for DafelHub
+# Jekyll configuration for GitHub Pages
+
+title: "DafelHub - Enterprise SaaS Platform"
+description: "Spec-Driven Development with Multi-Agent AI Orchestration"
+url: "https://dabtcavila.github.io"
+baseurl: "/DafelHub"
+
+# Author info
+author:
+  name: "Dafel Consulting"
+  email: "contact@dafelconsulting.com"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Include/Exclude
+include:
+  - docs/
+  - assets/
+  - api/
+  - parallel-system.html
+  - agents.html
+
+exclude:
+  - src/
+  - tests/
+  - scripts/
+  - docker-compose.yml
+  - Dockerfile
+  - requirements.txt
+  - pyproject.toml
+  - deploy.sh
+  - test_basic.py
+  - memory/
+  - .env.example
+
+# Collections
+collections:
+  docs:
+    output: true
+    permalink: /:collection/:name/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+  - scope:
+      path: ""
+      type: "docs"
+    values:
+      layout: "default"
+
+# SEO
+google_analytics: # Add your GA tracking ID
+github_username: DabtcAvila
+repository: DabtcAvila/DafelHub
+
+# Social links
+social_links:
+  github: DabtcAvila
+  linkedin: # Add your LinkedIn
+
+# Features
+show_excerpts: true
+livereload: true
