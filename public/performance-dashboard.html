@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DafelHub Performance Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --success-color: #16a34a;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .metric-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .metric-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-good {
+            background-color: #dcfce7;
+            color: var(--success-color);
+        }
+
+        .status-needs-improvement {
+            background-color: #fef3c7;
+            color: var(--warning-color);
+        }
+
+        .status-poor {
+            background-color: #fee2e2;
+            color: var(--danger-color);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value.good {
+            color: var(--success-color);
+        }
+
+        .metric-value.needs-improvement {
+            color: var(--warning-color);
+        }
+
+        .metric-value.poor {
+            color: var(--danger-color);
+        }
+
+        .metric-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .metric-progress {
+            width: 100%;
+            height: 6px;
+            background-color: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .metric-progress-bar {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-good {
+            background-color: var(--success-color);
+        }
+
+        .progress-warning {
+            background-color: var(--warning-color);
+        }
+
+        .progress-danger {
+            background-color: var(--danger-color);
+        }
+
+        .charts-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .chart-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .canvas-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .memory-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .memory-stat {
+            text-align: center;
+            padding: 1rem;
+            background-color: var(--background);
+            border-radius: 8px;
+        }
+
+        .memory-stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .memory-stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .resource-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .resource-table th,
+        .resource-table td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .resource-table th {
+            font-weight: 600;
+            background-color: var(--background);
+        }
+
+        .alerts-section {
+            margin-top: 2rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-warning {
+            background-color: #fef3c7;
+            border-left: 4px solid var(--warning-color);
+            color: #92400e;
+        }
+
+        .alert-danger {
+            background-color: #fee2e2;
+            border-left: 4px solid var(--danger-color);
+            color: #991b1b;
+        }
+
+        .alert-icon {
+            font-size: 1.25rem;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .refresh-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-bottom: 1rem;
+        }
+
+        .refresh-button:hover {
+            background: #1d4ed8;
+        }
+
+        .last-updated {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                padding: 1rem;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <header class="dashboard-header">
+            <h1 class="dashboard-title">Performance Dashboard</h1>
+            <p class="dashboard-subtitle">Real-time Web Vitals and Performance Monitoring</p>
+            <button class="refresh-button" onclick="refreshDashboard()">Refresh Metrics</button>
+        </header>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <span style="margin-left: 1rem;">Loading performance data...</span>
+        </div>
+
+        <div id="dashboard-content" style="display: none;">
+            <!-- Web Vitals Metrics -->
+            <div class="metrics-grid" id="web-vitals-grid"></div>
+
+            <!-- Memory Usage Section -->
+            <section class="charts-section">
+                <h2 class="section-title">Memory Usage</h2>
+                <div class="chart-container">
+                    <h3 class="chart-title">JavaScript Heap Memory</h3>
+                    <div class="canvas-container">
+                        <canvas id="memoryChart"></canvas>
+                    </div>
+                    <div class="memory-stats" id="memory-stats"></div>
+                </div>
+            </section>
+
+            <!-- Performance Charts -->
+            <section class="charts-section">
+                <h2 class="section-title">Performance Trends</h2>
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3 class="chart-title">Core Web Vitals Timeline</h3>
+                        <div class="canvas-container">
+                            <canvas id="webVitalsChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3 class="chart-title">Resource Loading Performance</h3>
+                        <div class="canvas-container">
+                            <canvas id="resourceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Resource Analysis -->
+            <section class="charts-section">
+                <h2 class="section-title">Resource Analysis</h2>
+                <div class="chart-container">
+                    <h3 class="chart-title">Slow Resources (>1s load time)</h3>
+                    <table class="resource-table" id="slow-resources-table">
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Load Time</th>
+                                <th>Size</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Performance Alerts -->
+            <section class="alerts-section">
+                <h2 class="section-title">Performance Alerts</h2>
+                <div id="performance-alerts"></div>
+            </section>
+
+            <div class="last-updated" id="last-updated"></div>
+        </div>
+    </div>
+
+    <script src="js/performance-monitor.js"></script>
+    <script src="js/realtime-dashboard.js"></script>
+    <script>
+        class PerformanceDashboard {
+            constructor() {
+                this.charts = {};
+                this.monitor = null;
+                this.updateInterval = null;
+                this.init();
+            }
+
+            async init() {
+                try {
+                    // Initialize performance monitor if not already done
+                    if (!window.performanceMonitor) {
+                        window.performanceMonitor = new PerformanceMonitor({
+                            enableRealTimeReporting: true,
+                            memoryCheckInterval: 10000 // More frequent for dashboard
+                        });
+                    }
+                    this.monitor = window.performanceMonitor;
+
+                    // Wait a bit for initial metrics to be collected
+                    setTimeout(() => {
+                        this.loadDashboard();
+                        this.startAutoRefresh();
+                    }, 2000);
+
+                } catch (error) {
+                    console.error('Dashboard initialization failed:', error);
+                    this.showError('Failed to initialize performance dashboard');
+                }
+            }
+
+            loadDashboard() {
+                this.hideLoading();
+                this.renderWebVitals();
+                this.renderMemoryChart();
+                this.renderWebVitalsChart();
+                this.renderResourceChart();
+                this.renderSlowResources();
+                this.renderAlerts();
+                this.updateLastUpdated();
+            }
+
+            hideLoading() {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard-content').style.display = 'block';
+            }
+
+            renderWebVitals() {
+                const container = document.getElementById('web-vitals-grid');
+                const metrics = this.monitor.getMetrics();
+                
+                const vitalsConfig = {
+                    FCP: { name: 'First Contentful Paint', unit: 'ms', description: 'Time until first text/image appears' },
+                    LCP: { name: 'Largest Contentful Paint', unit: 'ms', description: 'Time until largest content renders' },
+                    CLS: { name: 'Cumulative Layout Shift', unit: '', description: 'Visual stability score' },
+                    FID: { name: 'First Input Delay', unit: 'ms', description: 'Response time to first interaction' },
+                    TTFB: { name: 'Time to First Byte', unit: 'ms', description: 'Server response time' },
+                    INP: { name: 'Interaction to Next Paint', unit: 'ms', description: 'Responsiveness to user input' }
+                };
+
+                container.innerHTML = '';
+                
+                Object.entries(vitalsConfig).forEach(([key, config]) => {
+                    const metric = metrics[key];
+                    const value = metric ? metric.value : null;
+                    const rating = metric ? metric.rating : 'unknown';
+                    
+                    container.appendChild(this.createMetricCard(key, config, value, rating));
+                });
+            }
+
+            createMetricCard(key, config, value, rating) {
+                const card = document.createElement('div');
+                card.className = 'metric-card';
+                
+                const displayValue = value !== null ? 
+                    (typeof value === 'number' ? 
+                        (key === 'CLS' ? value.toFixed(3) : Math.round(value)) : 
+                        'N/A') : 
+                    'Measuring...';
+
+                const thresholds = this.monitor.options.performanceThresholds[key];
+                const progressPercent = this.calculateProgressPercent(key, value, thresholds);
+
+                card.innerHTML = `
+                    <div class="metric-header">
+                        <h3 class="metric-name">${config.name}</h3>
+                        <span class="metric-status status-${rating}">${rating}</span>
+                    </div>
+                    <div class="metric-value ${rating}">
+                        ${displayValue}${config.unit}
+                    </div>
+                    <p class="metric-description">${config.description}</p>
+                    <div class="metric-progress">
+                        <div class="metric-progress-bar progress-${this.getProgressColor(rating)}" 
+                             style="width: ${progressPercent}%"></div>
+                    </div>
+                `;
+
+                return card;
+            }
+
+            calculateProgressPercent(key, value, thresholds) {
+                if (!thresholds || value === null) return 0;
+                
+                if (key === 'CLS') {
+                    return Math.min((value / thresholds.poor) * 100, 100);
+                } else {
+                    return Math.min((value / thresholds.poor) * 100, 100);
+                }
+            }
+
+            getProgressColor(rating) {
+                switch (rating) {
+                    case 'good': return 'good';
+                    case 'needs-improvement': return 'warning';
+                    case 'poor': return 'danger';
+                    default: return 'good';
+                }
+            }
+
+            renderMemoryChart() {
+                const ctx = document.getElementById('memoryChart').getContext('2d');
+                const memoryStats = this.monitor.getMemoryStats();
+                
+                if (memoryStats.length === 0) {
+                    ctx.fillStyle = '#64748b';
+                    ctx.font = '16px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('No memory data available', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                    return;
+                }
+
+                const labels = memoryStats.slice(-20).map((_, i) => `${i * 30}s`);
+                const usedData = memoryStats.slice(-20).map(stat => Math.round(stat.usedJSHeapSize / 1024 / 1024));
+                const totalData = memoryStats.slice(-20).map(stat => Math.round(stat.totalJSHeapSize / 1024 / 1024));
+
+                if (this.charts.memory) {
+                    this.charts.memory.destroy();
+                }
+
+                this.charts.memory = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'Used Memory (MB)',
+                            data: usedData,
+                            borderColor: '#dc2626',
+                            backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                            tension: 0.4
+                        }, {
+                            label: 'Total Memory (MB)',
+                            data: totalData,
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Memory (MB)'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Update memory stats
+                this.updateMemoryStats(memoryStats[memoryStats.length - 1]);
+            }
+
+            updateMemoryStats(currentMemory) {
+                const container = document.getElementById('memory-stats');
+                if (!currentMemory) return;
+
+                container.innerHTML = `
+                    <div class="memory-stat">
+                        <div class="memory-stat-value">${Math.round(currentMemory.usedJSHeapSize / 1024 / 1024)}MB</div>
+                        <div class="memory-stat-label">Used</div>
+                    </div>
+                    <div class="memory-stat">
+                        <div class="memory-stat-value">${Math.round(currentMemory.totalJSHeapSize / 1024 / 1024)}MB</div>
+                        <div class="memory-stat-label">Total</div>
+                    </div>
+                    <div class="memory-stat">
+                        <div class="memory-stat-value">${Math.round(currentMemory.usage)}%</div>
+                        <div class="memory-stat-label">Usage</div>
+                    </div>
+                `;
+            }
+
+            renderWebVitalsChart() {
+                const ctx = document.getElementById('webVitalsChart').getContext('2d');
+                const metrics = this.monitor.getMetrics();
+                
+                const vitalsData = {
+                    labels: ['FCP', 'LCP', 'CLS', 'FID', 'TTFB'],
+                    datasets: [{
+                        label: 'Current Values',
+                        data: [
+                            metrics.FCP?.value || 0,
+                            metrics.LCP?.value || 0,
+                            (metrics.CLS?.value || 0) * 1000, // Scale CLS for visibility
+                            metrics.FID?.value || 0,
+                            metrics.TTFB?.value || 0
+                        ],
+                        backgroundColor: [
+                            this.getMetricColor(metrics.FCP?.rating),
+                            this.getMetricColor(metrics.LCP?.rating),
+                            this.getMetricColor(metrics.CLS?.rating),
+                            this.getMetricColor(metrics.FID?.rating),
+                            this.getMetricColor(metrics.TTFB?.rating)
+                        ]
+                    }]
+                };
+
+                if (this.charts.webVitals) {
+                    this.charts.webVitals.destroy();
+                }
+
+                this.charts.webVitals = new Chart(ctx, {
+                    type: 'bar',
+                    data: vitalsData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Value (ms, CLS × 1000)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            renderResourceChart() {
+                const ctx = document.getElementById('resourceChart').getContext('2d');
+                const resourceTimings = this.monitor.getResourceTimings();
+                
+                if (resourceTimings.length === 0) return;
+
+                const latest = resourceTimings[resourceTimings.length - 1];
+                const resourceTypes = latest.analysis.resourceTypes;
+
+                const labels = Object.keys(resourceTypes);
+                const counts = labels.map(type => resourceTypes[type].count);
+                const sizes = labels.map(type => Math.round(resourceTypes[type].totalSize / 1024)); // KB
+
+                if (this.charts.resource) {
+                    this.charts.resource.destroy();
+                }
+
+                this.charts.resource = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels.map(label => label.charAt(0).toUpperCase() + label.slice(1)),
+                        datasets: [{
+                            label: 'Count',
+                            data: counts,
+                            backgroundColor: [
+                                '#2563eb', '#16a34a', '#d97706', '#dc2626', '#7c3aed', '#0891b2'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+            }
+
+            renderSlowResources() {
+                const resourceTimings = this.monitor.getResourceTimings();
+                const tbody = document.querySelector('#slow-resources-table tbody');
+                
+                if (resourceTimings.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4">No resource data available</td></tr>';
+                    return;
+                }
+
+                const latest = resourceTimings[resourceTimings.length - 1];
+                const slowResources = latest.analysis.slowResources.slice(0, 10); // Top 10
+
+                if (slowResources.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4">No slow resources detected</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = slowResources.map(resource => `
+                    <tr>
+                        <td title="${resource.name}">${this.truncateUrl(resource.name)}</td>
+                        <td>${Math.round(resource.loadTime)}ms</td>
+                        <td>${this.formatBytes(resource.size)}</td>
+                        <td>${this.getResourceTypeFromUrl(resource.name)}</td>
+                    </tr>
+                `).join('');
+            }
+
+            renderAlerts() {
+                const alertsContainer = document.getElementById('performance-alerts');
+                const alerts = [];
+                const metrics = this.monitor.getMetrics();
+
+                // Check for poor metrics
+                Object.entries(metrics).forEach(([name, metric]) => {
+                    if (metric.rating === 'poor') {
+                        alerts.push({
+                            type: 'danger',
+                            message: `${name} is performing poorly (${typeof metric.value === 'number' ? Math.round(metric.value) : metric.value}). Consider optimization.`
+                        });
+                    }
+                });
+
+                // Check memory usage
+                const memoryStats = this.monitor.getMemoryStats();
+                if (memoryStats.length > 0) {
+                    const latest = memoryStats[memoryStats.length - 1];
+                    if (latest.usage > 80) {
+                        alerts.push({
+                            type: 'warning',
+                            message: `High memory usage detected (${Math.round(latest.usage)}%). Consider investigating memory leaks.`
+                        });
+                    }
+                }
+
+                if (alerts.length === 0) {
+                    alertsContainer.innerHTML = '<div class="alert" style="background-color: #dcfce7; border-left-color: #16a34a; color: #166534;">✅ All performance metrics are within acceptable ranges.</div>';
+                } else {
+                    alertsContainer.innerHTML = alerts.map(alert => `
+                        <div class="alert alert-${alert.type}">
+                            <span class="alert-icon">${alert.type === 'danger' ? '⚠️' : '⚠️'}</span>
+                            <span>${alert.message}</span>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            getMetricColor(rating) {
+                switch (rating) {
+                    case 'good': return '#16a34a';
+                    case 'needs-improvement': return '#d97706';
+                    case 'poor': return '#dc2626';
+                    default: return '#64748b';
+                }
+            }
+
+            truncateUrl(url, maxLength = 50) {
+                if (url.length <= maxLength) return url;
+                return '...' + url.slice(-maxLength + 3);
+            }
+
+            getResourceTypeFromUrl(url) {
+                if (url.includes('.js')) return 'JavaScript';
+                if (url.includes('.css')) return 'Stylesheet';
+                if (url.match(/\.(jpg|jpeg|png|gif|webp|svg)/i)) return 'Image';
+                if (url.match(/\.(woff|woff2|ttf|eot)/i)) return 'Font';
+                return 'Other';
+            }
+
+            formatBytes(bytes) {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+            }
+
+            updateLastUpdated() {
+                const now = new Date();
+                document.getElementById('last-updated').textContent = 
+                    `Last updated: ${now.toLocaleTimeString()}`;
+            }
+
+            startAutoRefresh() {
+                // Refresh every 10 seconds
+                this.updateInterval = setInterval(() => {
+                    this.loadDashboard();
+                }, 10000);
+            }
+
+            stopAutoRefresh() {
+                if (this.updateInterval) {
+                    clearInterval(this.updateInterval);
+                    this.updateInterval = null;
+                }
+            }
+
+            showError(message) {
+                document.getElementById('loading').innerHTML = `
+                    <div style="color: var(--danger-color); text-align: center;">
+                        <p>${message}</p>
+                        <button class="refresh-button" onclick="location.reload()">Retry</button>
+                    </div>
+                `;
+            }
+
+            destroy() {
+                this.stopAutoRefresh();
+                Object.values(this.charts).forEach(chart => chart.destroy());
+            }
+        }
+
+        // Global functions
+        function refreshDashboard() {
+            if (window.dashboard) {
+                window.dashboard.loadDashboard();
+            }
+        }
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.dashboard = new PerformanceDashboard();
+            
+            // Initialize real-time monitoring integration
+            if (window.RealtimeDashboard) {
+                window.realtimeIntegration = new RealtimeDashboard({
+                    wsUrl: 'ws://localhost:8081/ws/metrics',
+                    apiUrl: 'http://localhost:8081/api/realtime'
+                });
+                
+                console.log('🔗 Real-time monitoring integration enabled');
+            }
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (window.dashboard) {
+                window.dashboard.destroy();
+            }
+            if (window.realtimeIntegration) {
+                window.realtimeIntegration.destroy();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dafel Technologies - Design System Demo</title>
+    
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="./design-system.css">
+    
+    <!-- Tailwind CSS (CDN for demo - replace with compiled version) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configure Tailwind to use our design system
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                        accent: {
+                            50: '#ecfdf5',
+                            500: '#10b981',
+                        },
+                        neutral: {
+                            50: '#fafafa',
+                            100: '#f4f4f5',
+                            200: '#e4e4e7',
+                            800: '#27272a',
+                            900: '#18181b',
+                            950: '#09090b',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Geist', 'Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom component styles using our design system */
+        .btn-primary {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            padding: var(--space-3) var(--space-6);
+            border-radius: var(--radius-lg);
+            font-weight: var(--font-weight-medium);
+            font-size: var(--text-sm);
+            height: var(--button-height-md);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            transition: all var(--duration-200) var(--ease-in-out);
+            box-shadow: var(--shadow-sm);
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary:hover {
+            background: var(--color-primary-700);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--secondary-foreground);
+            padding: var(--space-3) var(--space-6);
+            border-radius: var(--radius-lg);
+            font-weight: var(--font-weight-medium);
+            font-size: var(--text-sm);
+            height: var(--button-height-md);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            transition: all var(--duration-200) var(--ease-in-out);
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+        
+        .btn-secondary:hover {
+            background: var(--color-secondary-200);
+            border-color: var(--color-secondary-300);
+        }
+        
+        .card {
+            background: var(--card);
+            color: var(--card-foreground);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-sm);
+            padding: var(--card-padding-md);
+        }
+        
+        .input {
+            width: 100%;
+            height: var(--input-height-md);
+            padding: 0 var(--space-3);
+            background: var(--background);
+            border: 1px solid var(--input);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            color: var(--foreground);
+            transition: all var(--duration-150) var(--ease-in-out);
+        }
+        
+        .input:focus {
+            outline: none;
+            border-color: var(--ring);
+            box-shadow: 0 0 0 2px rgb(from var(--ring) r g b / 0.2);
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: var(--space-1) var(--space-2);
+            font-size: var(--text-xs);
+            font-weight: var(--font-weight-medium);
+            border-radius: var(--radius-full);
+            gap: var(--space-1);
+        }
+        
+        .badge-primary {
+            background: var(--color-primary-100);
+            color: var(--color-primary-800);
+        }
+        
+        .badge-success {
+            background: var(--color-accent-100);
+            color: var(--color-accent-800);
+        }
+        
+        .badge-warning {
+            background: var(--color-warning-100);
+            color: var(--color-warning-800);
+        }
+        
+        .badge-error {
+            background: var(--color-error-100);
+            color: var(--color-error-800);
+        }
+        
+        /* Dark mode adjustments */
+        .dark .badge-primary {
+            background: var(--color-primary-900);
+            color: var(--color-primary-200);
+        }
+        
+        .dark .badge-success {
+            background: var(--color-accent-900);
+            color: var(--color-accent-200);
+        }
+        
+        .dark .badge-warning {
+            background: var(--color-warning-900);
+            color: var(--color-warning-200);
+        }
+        
+        .dark .badge-error {
+            background: var(--color-error-900);
+            color: var(--color-error-200);
+        }
+        
+        /* Typography showcase */
+        .text-display-1 { font-size: var(--text-6xl); font-weight: var(--font-weight-bold); line-height: var(--leading-none); letter-spacing: var(--tracking-tight); }
+        .text-display-2 { font-size: var(--text-5xl); font-weight: var(--font-weight-bold); line-height: var(--leading-none); letter-spacing: var(--tracking-tight); }
+        .text-headline-1 { font-size: var(--text-4xl); font-weight: var(--font-weight-semibold); line-height: var(--leading-tight); }
+        .text-headline-2 { font-size: var(--text-3xl); font-weight: var(--font-weight-semibold); line-height: var(--leading-tight); }
+        .text-title-1 { font-size: var(--text-2xl); font-weight: var(--font-weight-semibold); line-height: var(--leading-tight); }
+        .text-title-2 { font-size: var(--text-xl); font-weight: var(--font-weight-semibold); line-height: var(--leading-tight); }
+        .text-body-large { font-size: var(--text-lg); font-weight: var(--font-weight-normal); line-height: var(--leading-relaxed); }
+        .text-body { font-size: var(--text-base); font-weight: var(--font-weight-normal); line-height: var(--leading-normal); }
+        .text-body-small { font-size: var(--text-sm); font-weight: var(--font-weight-normal); line-height: var(--leading-normal); }
+        .text-caption { font-size: var(--text-xs); font-weight: var(--font-weight-medium); line-height: var(--leading-normal); letter-spacing: var(--tracking-wide); text-transform: uppercase; }
+    </style>
+</head>
+<body style="background: var(--background); color: var(--foreground); font-family: var(--font-sans);">
+    <!-- Theme Toggle -->
+    <div style="position: fixed; top: var(--space-6); right: var(--space-6); z-index: var(--z-fixed);">
+        <button onclick="toggleTheme()" class="btn-secondary" style="padding: var(--space-2);">
+            <span id="theme-icon">🌙</span>
+        </button>
+    </div>
+
+    <!-- Header -->
+    <header style="padding: var(--space-16) var(--space-6) var(--space-12); text-align: center; background: linear-gradient(135deg, var(--color-primary-50), var(--color-accent-50));" class="dark:bg-gradient-to-br dark:from-neutral-900 dark:to-neutral-800">
+        <h1 class="text-display-1" style="background: linear-gradient(135deg, var(--color-primary-600), var(--color-accent-600)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: var(--space-4);">
+            Dafel Technologies
+        </h1>
+        <p class="text-body-large" style="color: var(--muted-foreground); margin-bottom: var(--space-8); max-width: 600px; margin-left: auto; margin-right: auto;">
+            Enterprise-Grade Design System showcasing sophisticated color palettes, typography scales, and component patterns.
+        </p>
+        <div style="display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap;">
+            <button class="btn-primary">
+                Explore Components
+            </button>
+            <button class="btn-secondary">
+                View Documentation
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main style="max-width: 1200px; margin: 0 auto; padding: var(--space-12) var(--space-6);">
+        
+        <!-- Typography Section -->
+        <section style="margin-bottom: var(--space-20);">
+            <h2 class="text-headline-1" style="margin-bottom: var(--space-8); text-align: center;">Typography Scale</h2>
+            <div class="card" style="margin-bottom: var(--space-8);">
+                <div class="text-display-1" style="margin-bottom: var(--space-4);">Display 1</div>
+                <div class="text-display-2" style="margin-bottom: var(--space-4);">Display 2</div>
+                <div class="text-headline-1" style="margin-bottom: var(--space-4);">Headline 1</div>
+                <div class="text-headline-2" style="margin-bottom: var(--space-4);">Headline 2</div>
+                <div class="text-title-1" style="margin-bottom: var(--space-4);">Title 1</div>
+                <div class="text-title-2" style="margin-bottom: var(--space-4);">Title 2</div>
+                <div class="text-body-large" style="margin-bottom: var(--space-4);">Body Large - Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
+                <div class="text-body" style="margin-bottom: var(--space-4);">Body - Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.</div>
+                <div class="text-body-small" style="margin-bottom: var(--space-4);">Body Small - Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
+                <div class="text-caption">Caption - Supporting text</div>
+            </div>
+        </section>
+
+        <!-- Color Palette Section -->
+        <section style="margin-bottom: var(--space-20);">
+            <h2 class="text-headline-1" style="margin-bottom: var(--space-8); text-align: center;">Color Palette</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-6);">
+                
+                <!-- Primary Colors -->
+                <div class="card">
+                    <h3 class="text-title-2" style="margin-bottom: var(--space-4);">Primary</h3>
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-2); margin-bottom: var(--space-4);">
+                        <div style="background: var(--color-primary-50); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium);">50</div>
+                        <div style="background: var(--color-primary-100); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium);">100</div>
+                        <div style="background: var(--color-primary-200); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium);">200</div>
+                        <div style="background: var(--color-primary-300); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium);">300</div>
+                        <div style="background: var(--color-primary-400); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium); color: white;">400</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-2);">
+                        <div style="background: var(--color-primary-500); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium); color: white;">500</div>
+                        <div style="background: var(--color-primary-600); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium); color: white;">600</div>
+                        <div style="background: var(--color-primary-700); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium); color: white;">700</div>
+                        <div style="background: var(--color-primary-800); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium); color: white;">800</div>
+                        <div style="background: var(--color-primary-900); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium); color: white;">900</div>
+                    </div>
+                </div>
+
+                <!-- Accent Colors -->
+                <div class="card">
+                    <h3 class="text-title-2" style="margin-bottom: var(--space-4);">Accent</h3>
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-2); margin-bottom: var(--space-4);">
+                        <div style="background: var(--color-accent-50); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium);">50</div>
+                        <div style="background: var(--color-accent-100); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium);">100</div>
+                        <div style="background: var(--color-accent-200); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium);">200</div>
+                        <div style="background: var(--color-accent-300); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium);">300</div>
+                        <div style="background: var(--color-accent-400); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium);">400</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-2);">
+                        <div style="background: var(--color-accent-500); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium); color: white;">500</div>
+                        <div style="background: var(--color-accent-600); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium); color: white;">600</div>
+                        <div style="background: var(--color-accent-700); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium); color: white;">700</div>
+                        <div style="background: var(--color-accent-800); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium); color: white;">800</div>
+                        <div style="background: var(--color-accent-900); height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: var(--font-weight-medium); color: white;">900</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Components Section -->
+        <section style="margin-bottom: var(--space-20);">
+            <h2 class="text-headline-1" style="margin-bottom: var(--space-8); text-align: center;">Components</h2>
+            
+            <!-- Buttons -->
+            <div class="card" style="margin-bottom: var(--space-8);">
+                <h3 class="text-title-2" style="margin-bottom: var(--space-6);">Buttons</h3>
+                <div style="display: flex; gap: var(--space-4); flex-wrap: wrap;">
+                    <button class="btn-primary">Primary Button</button>
+                    <button class="btn-secondary">Secondary Button</button>
+                    <button class="btn-primary" style="background: var(--accent); padding: var(--space-2) var(--space-4);">Small</button>
+                    <button class="btn-primary" style="height: var(--button-height-lg); padding: 0 var(--space-8);">Large</button>
+                </div>
+            </div>
+
+            <!-- Form Elements -->
+            <div class="card" style="margin-bottom: var(--space-8);">
+                <h3 class="text-title-2" style="margin-bottom: var(--space-6);">Form Elements</h3>
+                <div style="display: grid; gap: var(--space-4); max-width: 400px;">
+                    <input class="input" type="text" placeholder="Enter your name" />
+                    <input class="input" type="email" placeholder="Enter your email" />
+                    <textarea class="input" style="height: 120px; resize: vertical; padding: var(--space-3);" placeholder="Enter your message"></textarea>
+                </div>
+            </div>
+
+            <!-- Badges -->
+            <div class="card" style="margin-bottom: var(--space-8);">
+                <h3 class="text-title-2" style="margin-bottom: var(--space-6);">Badges</h3>
+                <div style="display: flex; gap: var(--space-4); flex-wrap: wrap;">
+                    <span class="badge badge-primary">Primary</span>
+                    <span class="badge badge-success">Success</span>
+                    <span class="badge badge-warning">Warning</span>
+                    <span class="badge badge-error">Error</span>
+                </div>
+            </div>
+
+            <!-- Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-6);">
+                <div class="card">
+                    <h3 class="text-title-2" style="margin-bottom: var(--space-4);">Feature Card</h3>
+                    <p class="text-body" style="color: var(--muted-foreground); margin-bottom: var(--space-6);">
+                        This is a sample card demonstrating our design system's card component with proper spacing and typography.
+                    </p>
+                    <button class="btn-primary">Learn More</button>
+                </div>
+                
+                <div class="card" style="background: linear-gradient(135deg, var(--color-primary-50), var(--color-accent-50));">
+                    <h3 class="text-title-2" style="margin-bottom: var(--space-4); background: linear-gradient(135deg, var(--color-primary-600), var(--color-accent-600)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Gradient Card</h3>
+                    <p class="text-body" style="color: var(--muted-foreground); margin-bottom: var(--space-6);">
+                        Cards can have gradient backgrounds while maintaining excellent readability and accessibility.
+                    </p>
+                    <button class="btn-secondary">Explore</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Shadows Section -->
+        <section style="margin-bottom: var(--space-20);">
+            <h2 class="text-headline-1" style="margin-bottom: var(--space-8); text-align: center;">Shadow System</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-6);">
+                <div style="padding: var(--space-6); background: var(--card); border-radius: var(--radius-xl); box-shadow: var(--shadow-xs); text-align: center;">
+                    <div class="text-body-small" style="font-weight: var(--font-weight-medium);">XS Shadow</div>
+                </div>
+                <div style="padding: var(--space-6); background: var(--card); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); text-align: center;">
+                    <div class="text-body-small" style="font-weight: var(--font-weight-medium);">SM Shadow</div>
+                </div>
+                <div style="padding: var(--space-6); background: var(--card); border-radius: var(--radius-xl); box-shadow: var(--shadow-base); text-align: center;">
+                    <div class="text-body-small" style="font-weight: var(--font-weight-medium);">Base Shadow</div>
+                </div>
+                <div style="padding: var(--space-6); background: var(--card); border-radius: var(--radius-xl); box-shadow: var(--shadow-md); text-align: center;">
+                    <div class="text-body-small" style="font-weight: var(--font-weight-medium);">MD Shadow</div>
+                </div>
+                <div style="padding: var(--space-6); background: var(--card); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); text-align: center;">
+                    <div class="text-body-small" style="font-weight: var(--font-weight-medium);">LG Shadow</div>
+                </div>
+                <div style="padding: var(--space-6); background: var(--card); border-radius: var(--radius-xl); box-shadow: var(--shadow-xl); text-align: center;">
+                    <div class="text-body-small" style="font-weight: var(--font-weight-medium);">XL Shadow</div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer style="padding: var(--space-12) var(--space-6); text-align: center; background: var(--muted); margin-top: var(--space-20);">
+        <div class="text-body" style="color: var(--muted-foreground);">
+            © 2024 Dafel Technologies. Built with our enterprise-grade design system.
+        </div>
+    </footer>
+
+    <script>
+        // Theme toggle functionality
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        // Initialize theme
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.classList.add('dark');
+                themeIcon.textContent = '☀️';
+            } else {
+                themeIcon.textContent = '🌙';
+            }
+        }
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initTheme);
+        
+        // Add smooth interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.style.transition = `all var(--duration-300) var(--ease-out)`;
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = 'var(--shadow-md)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'var(--shadow-sm)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

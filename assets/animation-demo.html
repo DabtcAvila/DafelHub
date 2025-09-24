@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DafelHub - Premium Animation System Demo</title>
+    <link rel="stylesheet" href="animations.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .demo-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .demo-title {
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .demo-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .demo-button {
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0.5rem;
+            min-width: 120px;
+            min-height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .demo-text {
+            color: #333;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .section-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .loader-demo {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .loader {
+            width: 40px;
+            height: 40px;
+            background: white;
+        }
+        
+        .text-effects {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .big-text {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 1rem 0;
+        }
+        
+        .floating-elements {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .floating-particle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <!-- Header -->
+        <div class="demo-title dafel-shimmer-text">
+            DafelHub Premium Animation System
+        </div>
+        
+        <!-- Entrance Animations Section -->
+        <div class="demo-section">
+            <h2 class="section-title">Entrance Animations</h2>
+            <div class="demo-grid" id="entrance-grid">
+                <div class="demo-card" data-animate="fadeIn" data-delay="100">
+                    <h3>Fade In</h3>
+                    <p class="demo-text">Smooth opacity transition</p>
+                </div>
+                <div class="demo-card" data-animate="slideUp" data-delay="200">
+                    <h3>Slide Up</h3>
+                    <p class="demo-text">Elegant upward motion</p>
+                </div>
+                <div class="demo-card" data-animate="scaleIn" data-delay="300">
+                    <h3>Scale In</h3>
+                    <p class="demo-text">Growing scale effect</p>
+                </div>
+                <div class="demo-card" data-animate="bounceIn" data-delay="400">
+                    <h3>Bounce In</h3>
+                    <p class="demo-text">Playful spring entrance</p>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="demo-button" onclick="replayEntranceAnimations()">
+                    Replay Entrance Animations
+                </button>
+            </div>
+        </div>
+        
+        <!-- Hover Effects Section -->
+        <div class="demo-section">
+            <h2 class="section-title">Hover Interactions</h2>
+            <div class="demo-grid">
+                <div class="demo-card dafel-hover-lift" data-hover="lift">
+                    <h3>Lift Effect</h3>
+                    <p class="demo-text">Hover to see lift animation</p>
+                </div>
+                <div class="demo-card dafel-hover-glow" data-hover="glow">
+                    <h3>Glow Effect</h3>
+                    <p class="demo-text">Magical glow on hover</p>
+                </div>
+                <div class="demo-card dafel-hover-tilt" data-hover="tilt">
+                    <h3>3D Tilt</h3>
+                    <p class="demo-text">Perspective transformation</p>
+                </div>
+                <div class="demo-card" data-magnetic data-magnetic-strength="0.4">
+                    <h3>Magnetic</h3>
+                    <p class="demo-text">Follows your cursor</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Morphing Button States -->
+        <div class="demo-section">
+            <h2 class="section-title">Morphing Button States</h2>
+            <div class="controls">
+                <button class="demo-button" id="morphing-btn">Click Me</button>
+                <button class="demo-button" onclick="resetMorphingButton()">Reset</button>
+            </div>
+        </div>
+        
+        <!-- CSS Animation Effects -->
+        <div class="demo-section">
+            <h2 class="section-title">CSS Animation Effects</h2>
+            <div class="demo-grid">
+                <div class="demo-card dafel-float">
+                    <h3>Float</h3>
+                    <p class="demo-text">Gentle floating motion</p>
+                </div>
+                <div class="demo-card dafel-breathe">
+                    <h3>Breathe</h3>
+                    <p class="demo-text">Subtle scaling pulse</p>
+                </div>
+                <div class="demo-card dafel-shimmer">
+                    <h3>Shimmer</h3>
+                    <p class="demo-text">Light wave effect</p>
+                </div>
+                <div class="demo-card dafel-glow">
+                    <h3>Glow Pulse</h3>
+                    <p class="demo-text">Rhythmic glow effect</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 3D Transforms -->
+        <div class="demo-section">
+            <h2 class="section-title">3D Transform Effects</h2>
+            <div class="demo-grid">
+                <div class="demo-card dafel-cube-rotation">
+                    <h3>Cube Rotation</h3>
+                    <p class="demo-text">3D cube spinning</p>
+                </div>
+                <div class="demo-card dafel-card-flip">
+                    <h3>Card Flip</h3>
+                    <p class="demo-text">3D card flip effect</p>
+                </div>
+                <div class="demo-card dafel-perspective-shift">
+                    <h3>Perspective</h3>
+                    <p class="demo-text">Dynamic perspective</p>
+                </div>
+                <div class="demo-card dafel-liquid">
+                    <h3>Liquid Morph</h3>
+                    <p class="demo-text">Fluid border changes</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Loading Animations -->
+        <div class="demo-section">
+            <h2 class="section-title">Loading Animations</h2>
+            <div class="loader-demo">
+                <div class="loader dafel-spinner"></div>
+                <div class="loader dafel-pulse-loader"></div>
+                <div class="loader dafel-morphing-loader"></div>
+                <div class="demo-card dafel-wave">Wave Motion</div>
+            </div>
+        </div>
+        
+        <!-- Text Effects -->
+        <div class="demo-section">
+            <h2 class="section-title">Text Effects</h2>
+            <div class="text-effects">
+                <div class="big-text dafel-gradient-text">Gradient Text</div>
+                <div class="big-text dafel-animated-gradient-text">Animated Gradient</div>
+                <div class="big-text dafel-shimmer-text">Shimmer Text</div>
+                <div class="demo-text dafel-typing-cursor">Typing Effect</div>
+            </div>
+        </div>
+        
+        <!-- Stagger Animation -->
+        <div class="demo-section">
+            <h2 class="section-title">Stagger Animations</h2>
+            <div class="demo-grid" data-stagger="slideUp" data-stagger-delay="150" id="stagger-container">
+                <div class="demo-card">Item 1</div>
+                <div class="demo-card">Item 2</div>
+                <div class="demo-card">Item 3</div>
+                <div class="demo-card">Item 4</div>
+                <div class="demo-card">Item 5</div>
+                <div class="demo-card">Item 6</div>
+            </div>
+            
+            <div class="controls">
+                <button class="demo-button" onclick="replayStaggerAnimation()">
+                    Replay Stagger
+                </button>
+            </div>
+        </div>
+        
+        <!-- Floating Particles -->
+        <div class="demo-section">
+            <h2 class="section-title">Particle Effects</h2>
+            <div class="floating-elements" id="particle-container">
+                <!-- Particles will be generated by JavaScript -->
+            </div>
+            <div class="controls">
+                <button class="demo-button" onclick="generateParticles()">
+                    Generate Particles
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module">
+        import { 
+            animationEngine, 
+            animate, 
+            hover, 
+            magnetic, 
+            morph, 
+            stagger, 
+            presetCombinations 
+        } from './animations.js';
+        
+        // Global functions for demo buttons
+        window.replayEntranceAnimations = function() {
+            const cards = document.querySelectorAll('#entrance-grid .demo-card');
+            cards.forEach((card, index) => {
+                const animationType = card.dataset.animate;
+                setTimeout(() => {
+                    if (animate[animationType]) {
+                        animate[animationType](card);
+                    }
+                }, index * 100);
+            });
+        };
+        
+        window.replayStaggerAnimation = function() {
+            const container = document.getElementById('stagger-container');
+            stagger.children(container, 'slideUp', { staggerDelay: 150 });
+        };
+        
+        window.generateParticles = function() {
+            const container = document.getElementById('particle-container');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'floating-particle dafel-particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 2 + 's';
+                    container.appendChild(particle);
+                }, i * 200);
+            }
+        };
+        
+        // Setup morphing button
+        const morphingBtn = document.getElementById('morphing-btn');
+        morph.button(morphingBtn, {
+            idle: { scale: 1, backgroundColor: '#3b82f6', borderRadius: '10px' },
+            loading: { scale: 0.95, backgroundColor: '#6366f1', borderRadius: '50%' },
+            success: { scale: 1.1, backgroundColor: '#10b981', borderRadius: '10px' },
+            error: { scale: 0.9, backgroundColor: '#ef4444', borderRadius: '10px' }
+        });
+        
+        let morphingState = 'idle';
+        morphingBtn.addEventListener('click', () => {
+            const states = ['loading', 'success', 'error', 'idle'];
+            const currentIndex = states.indexOf(morphingState);
+            morphingState = states[(currentIndex + 1) % states.length];
+            
+            morphingBtn.morphTo(morphingState);
+            
+            if (morphingState === 'loading') {
+                morphingBtn.textContent = '⟳';
+            } else if (morphingState === 'success') {
+                morphingBtn.textContent = '✓ Success';
+            } else if (morphingState === 'error') {
+                morphingBtn.textContent = '✗ Error';
+            } else {
+                morphingBtn.textContent = 'Click Me';
+            }
+        });
+        
+        window.resetMorphingButton = function() {
+            morphingState = 'idle';
+            morphingBtn.morphTo('idle');
+            morphingBtn.textContent = 'Click Me';
+        };
+        
+        // Initialize particles on load
+        setTimeout(() => {
+            generateParticles();
+        }, 1000);
+        
+        console.log('DafelHub Animation System Loaded Successfully!');
+        console.log('Available animations:', Object.keys(animate));
+        console.log('Available hover effects:', Object.keys(hover));
+        console.log('Animation engine:', animationEngine);
+    </script>
+</body>
+</html>

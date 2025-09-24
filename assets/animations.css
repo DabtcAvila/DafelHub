@@ -1,0 +1,622 @@
+/**
+ * DAFEL HUB - PREMIUM CSS ANIMATIONS
+ * Sophisticated keyframes and effects for GitHub Pages
+ * Complex animations that complement the JavaScript animation system
+ */
+
+/* === KEYFRAME DEFINITIONS === */
+
+@keyframes shimmer-effect {
+  0% {
+    background-position: -100% 0;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    background-position: 100% 0;
+    opacity: 0;
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 5px rgba(59, 130, 246, 0.3),
+      0 0 10px rgba(59, 130, 246, 0.2),
+      0 0 15px rgba(59, 130, 246, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 10px rgba(59, 130, 246, 0.6),
+      0 0 20px rgba(59, 130, 246, 0.4),
+      0 0 30px rgba(59, 130, 246, 0.3),
+      0 0 40px rgba(59, 130, 246, 0.1);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes rainbow-glow {
+  0% {
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+  }
+  16% {
+    box-shadow: 0 0 20px rgba(255, 165, 0, 0.4);
+  }
+  33% {
+    box-shadow: 0 0 20px rgba(255, 255, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+  }
+  66% {
+    box-shadow: 0 0 20px rgba(0, 0, 255, 0.4);
+  }
+  83% {
+    box-shadow: 0 0 20px rgba(75, 0, 130, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(238, 130, 238, 0.4);
+  }
+}
+
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0px) rotateX(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotateX(2deg);
+  }
+}
+
+@keyframes float-dynamic {
+  0% {
+    transform: translateY(0px) rotateZ(0deg);
+  }
+  33% {
+    transform: translateY(-6px) rotateZ(1deg);
+  }
+  66% {
+    transform: translateY(-2px) rotateZ(-1deg);
+  }
+  100% {
+    transform: translateY(0px) rotateZ(0deg);
+  }
+}
+
+@keyframes breathe-scale {
+  0%, 100% {
+    transform: scale(1) rotateX(0deg);
+  }
+  50% {
+    transform: scale(1.03) rotateX(1deg);
+  }
+}
+
+@keyframes wave-motion {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  25% {
+    transform: translateY(-8px);
+  }
+  75% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes magnetic-attraction {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(var(--magnetic-x, 0), var(--magnetic-y, 0)) scale(1.02);
+  }
+  100% {
+    transform: translate(var(--magnetic-x, 0), var(--magnetic-y, 0)) scale(1);
+  }
+}
+
+@keyframes elastic-entrance {
+  0% {
+    transform: scale(0) rotateZ(180deg);
+    animation-timing-function: ease-out;
+  }
+  25% {
+    transform: scale(1.25) rotateZ(90deg);
+    animation-timing-function: ease-in;
+  }
+  50% {
+    transform: scale(0.85) rotateZ(45deg);
+    animation-timing-function: ease-out;
+  }
+  75% {
+    transform: scale(1.1) rotateZ(10deg);
+    animation-timing-function: ease-in;
+  }
+  100% {
+    transform: scale(1) rotateZ(0deg);
+    animation-timing-function: ease-out;
+  }
+}
+
+@keyframes morphing-loader {
+  0% {
+    border-radius: 50%;
+    transform: scale(1) rotateZ(0deg);
+  }
+  25% {
+    border-radius: 25%;
+    transform: scale(1.1) rotateZ(90deg);
+  }
+  50% {
+    border-radius: 10%;
+    transform: scale(0.9) rotateZ(180deg);
+  }
+  75% {
+    border-radius: 25%;
+    transform: scale(1.1) rotateZ(270deg);
+  }
+  100% {
+    border-radius: 50%;
+    transform: scale(1) rotateZ(360deg);
+  }
+}
+
+@keyframes text-shimmer {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes particle-float {
+  0% {
+    transform: translateY(100vh) rotateZ(0deg) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(90vh) rotateZ(36deg) scale(0.8);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(10vh) rotateZ(324deg) scale(1);
+  }
+  100% {
+    transform: translateY(-10vh) rotateZ(360deg) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes liquid-morph {
+  0% {
+    border-radius: 50% 20% 30% 40%;
+    transform: rotateZ(0deg);
+  }
+  25% {
+    border-radius: 20% 50% 40% 30%;
+    transform: rotateZ(90deg);
+  }
+  50% {
+    border-radius: 30% 40% 50% 20%;
+    transform: rotateZ(180deg);
+  }
+  75% {
+    border-radius: 40% 30% 20% 50%;
+    transform: rotateZ(270deg);
+  }
+  100% {
+    border-radius: 50% 20% 30% 40%;
+    transform: rotateZ(360deg);
+  }
+}
+
+@keyframes typing-cursor {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+/* === 3D TRANSFORMS === */
+
+@keyframes cube-rotation {
+  0% {
+    transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  }
+  33% {
+    transform: rotateX(120deg) rotateY(120deg) rotateZ(0deg);
+  }
+  66% {
+    transform: rotateX(240deg) rotateY(240deg) rotateZ(120deg);
+  }
+  100% {
+    transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg);
+  }
+}
+
+@keyframes card-flip-3d {
+  0% {
+    transform: rotateY(0deg) rotateX(0deg);
+  }
+  50% {
+    transform: rotateY(180deg) rotateX(10deg);
+  }
+  100% {
+    transform: rotateY(360deg) rotateX(0deg);
+  }
+}
+
+@keyframes perspective-shift {
+  0% {
+    transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+  }
+  50% {
+    transform: perspective(1000px) rotateX(10deg) rotateY(10deg);
+  }
+  100% {
+    transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+  }
+}
+
+/* === UTILITY CLASSES === */
+
+.dafel-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-effect 2s infinite;
+}
+
+.dafel-shimmer-text {
+  background: linear-gradient(
+    90deg,
+    #333 0%,
+    #fff 50%,
+    #333 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-shimmer 2s infinite;
+}
+
+.dafel-glow {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.dafel-rainbow-glow {
+  animation: rainbow-glow 3s linear infinite;
+}
+
+.dafel-float {
+  animation: float-gentle 3s ease-in-out infinite;
+}
+
+.dafel-float-dynamic {
+  animation: float-dynamic 4s ease-in-out infinite;
+}
+
+.dafel-breathe {
+  animation: breathe-scale 4s ease-in-out infinite;
+}
+
+.dafel-wave {
+  animation: wave-motion 2s ease-in-out infinite;
+}
+
+.dafel-elastic {
+  animation: elastic-entrance 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.dafel-morphing-loader {
+  animation: morphing-loader 2s ease-in-out infinite;
+}
+
+.dafel-gradient-shift {
+  background: linear-gradient(45deg, #667eea, #764ba2, #667eea);
+  background-size: 300% 300%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+.dafel-particle {
+  animation: particle-float 8s linear infinite;
+}
+
+.dafel-liquid {
+  animation: liquid-morph 4s ease-in-out infinite;
+}
+
+.dafel-typing-cursor::after {
+  content: '|';
+  animation: typing-cursor 1s infinite;
+}
+
+/* === 3D UTILITY CLASSES === */
+
+.dafel-3d {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.dafel-cube-rotation {
+  animation: cube-rotation 4s linear infinite;
+  transform-style: preserve-3d;
+}
+
+.dafel-card-flip {
+  animation: card-flip-3d 3s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+.dafel-perspective-shift {
+  animation: perspective-shift 4s ease-in-out infinite;
+}
+
+/* === MAGNETIC INTERACTION STYLES === */
+
+.dafel-magnetic {
+  transition: transform 200ms cubic-bezier(0.2, 0, 0.38, 0.9);
+  cursor: pointer;
+}
+
+.dafel-magnetic:hover {
+  animation: magnetic-attraction 0.3s ease-out;
+}
+
+/* === PREMIUM BUTTON STATES === */
+
+.dafel-button-morph {
+  transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.dafel-button-morph.loading {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: morphing-loader 1s ease-in-out infinite;
+}
+
+.dafel-button-morph.success {
+  background: linear-gradient(45deg, #10b981, #059669);
+  transform: scale(1.05);
+}
+
+.dafel-button-morph.error {
+  background: linear-gradient(45deg, #ef4444, #dc2626);
+  transform: scale(0.95);
+  animation: wave-motion 0.5s ease-in-out;
+}
+
+/* === HOVER ENHANCEMENT CLASSES === */
+
+.dafel-hover-lift {
+  transition: transform 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.dafel-hover-lift:hover {
+  transform: translateY(-4px) scale(1.02);
+}
+
+.dafel-hover-tilt {
+  transition: transform 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform-style: preserve-3d;
+}
+
+.dafel-hover-tilt:hover {
+  transform: rotateX(10deg) rotateY(10deg) scale(1.02);
+}
+
+.dafel-hover-glow {
+  transition: box-shadow 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.dafel-hover-glow:hover {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+/* === LOADING STATES === */
+
+.dafel-spinner {
+  animation: shimmer-effect 1s linear infinite;
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+}
+
+.dafel-pulse-loader {
+  animation: breathe-scale 1.5s ease-in-out infinite;
+}
+
+/* === TEXT EFFECTS === */
+
+.dafel-gradient-text {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dafel-animated-gradient-text {
+  background: linear-gradient(45deg, #667eea, #764ba2, #667eea);
+  background-size: 300% 300%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 3s ease infinite;
+}
+
+/* === STAGGER DELAY UTILITIES === */
+
+.dafel-stagger-1 { animation-delay: 0.1s; }
+.dafel-stagger-2 { animation-delay: 0.2s; }
+.dafel-stagger-3 { animation-delay: 0.3s; }
+.dafel-stagger-4 { animation-delay: 0.4s; }
+.dafel-stagger-5 { animation-delay: 0.5s; }
+.dafel-stagger-6 { animation-delay: 0.6s; }
+.dafel-stagger-7 { animation-delay: 0.7s; }
+.dafel-stagger-8 { animation-delay: 0.8s; }
+
+/* === ENTRANCE ANIMATION CLASSES === */
+
+.dafel-fade-in {
+  animation: fadeIn 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.dafel-slide-up {
+  animation: slideUp 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dafel-slide-down {
+  animation: slideDown 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dafel-scale-in {
+  animation: scaleIn 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.dafel-bounce-in {
+  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.1);
+  }
+  80% {
+    opacity: 1;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* === RESPONSIVE ANIMATIONS === */
+
+@media (max-width: 768px) {
+  .dafel-float,
+  .dafel-breathe,
+  .dafel-float-dynamic {
+    animation-duration: 2s;
+  }
+  
+  .dafel-hover-lift:hover {
+    transform: translateY(-2px) scale(1.01);
+  }
+  
+  .dafel-magnetic {
+    animation: none;
+    transform: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dafel-float,
+  .dafel-breathe,
+  .dafel-wave,
+  .dafel-float-dynamic,
+  .dafel-shimmer,
+  .dafel-glow,
+  .dafel-particle,
+  .dafel-liquid,
+  .dafel-cube-rotation,
+  .dafel-card-flip,
+  .dafel-morphing-loader {
+    animation: none;
+  }
+  
+  .dafel-hover-lift:hover,
+  .dafel-hover-tilt:hover {
+    transform: none;
+  }
+}
+
+/* === UTILITY HELPERS === */
+
+.dafel-animation-paused {
+  animation-play-state: paused;
+}
+
+.dafel-animation-running {
+  animation-play-state: running;
+}
+
+.dafel-will-change {
+  will-change: transform, opacity;
+}
+
+.dafel-gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}

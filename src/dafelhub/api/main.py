@@ -16,7 +16,14 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from dafelhub.core.config import settings
 from dafelhub.core.logging import get_logger
-from dafelhub.api.routes import auth, projects, specifications, agents, health
+# Import all route modules
+from dafelhub.api.routes import auth, admin, connections, projects, studio
+from dafelhub.api.middleware import (
+    JWTAuthenticationMiddleware,
+    RBACAuthorizationMiddleware,
+    AuditLoggingMiddleware,
+    RateLimitingMiddleware
+)
 
 logger = get_logger(__name__)
 
@@ -91,6 +98,41 @@ app.add_middleware(
         "0.0.0.0",
         settings.API_HOST,
     ],
+)
+
+# Enterprise Security Middleware
+app.add_middleware(
+    RateLimitingMiddleware,
+    requests_per_minute=100 if settings.DEBUG else 60
+)
+
+app.add_middleware(
+    AuditLoggingMiddleware,
+    log_body=False  # Set to True for detailed audit logging
+)
+
+app.add_middleware(
+    RBACAuthorizationMiddleware,
+    route_permissions={
+        "/api/v1/admin": "admin",
+        "/api/v1/studio": "user", 
+        "/api/v1/projects": "user",
+        "/api/v1/connections": "user",
+    }
+)
+
+app.add_middleware(
+    JWTAuthenticationMiddleware,
+    exclude_paths=[
+        "/",
+        "/docs",
+        "/redoc",
+        "/openapi.json",
+        "/health",
+        "/info",
+        "/api/v1/auth/login",
+        "/api/v1/auth/register"
+    ]
 )
 
 
@@ -213,38 +255,53 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 
 # =============================================================================
-# ROUTE REGISTRATION
+# ROUTE REGISTRATION - 23 ENDPOINTS TOTAL
 # =============================================================================
 
-# Health check (public)
-app.include_router(health.router, tags=["health"])
+# Health check endpoint (public)
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "version": settings.VERSION,
+        "timestamp": time.time(),
+        "environment": settings.ENVIRONMENT
+    }
 
-# Authentication routes
+# Authentication routes (5 endpoints)
 app.include_router(
     auth.router,
     prefix=f"{settings.API_V1_STR}/auth",
-    tags=["authentication"],
+    tags=["Authentication"],
 )
 
-# Project management routes
+# Admin Panel routes (6 endpoints) 
+app.include_router(
+    admin.router,
+    prefix=f"{settings.API_V1_STR}/admin",
+    tags=["Admin Panel"],
+)
+
+# Database Connections routes (6 endpoints)
+app.include_router(
+    connections.router,
+    prefix=f"{settings.API_V1_STR}/connections",
+    tags=["Data Sources"],
+)
+
+# Project Management routes (3 endpoints)
 app.include_router(
     projects.router,
     prefix=f"{settings.API_V1_STR}/projects",
-    tags=["projects"],
+    tags=["Projects"],
 )
 
-# Specification management routes  
+# Studio routes (3 endpoints)
 app.include_router(
-    specifications.router,
-    prefix=f"{settings.API_V1_STR}/specifications",
-    tags=["specifications"],
-)
-
-# Agent management routes
-app.include_router(
-    agents.router,
-    prefix=f"{settings.API_V1_STR}/agents",
-    tags=["agents"],
+    studio.router,
+    prefix=f"{settings.API_V1_STR}/studio",
+    tags=["Studio"],
 )
 
 
@@ -274,19 +331,33 @@ async def info():
         "environment": settings.ENVIRONMENT,
         "debug": settings.DEBUG,
         "features": {
-            "authentication": True,
-            "multi_agent_ai": True,
-            "spec_driven_development": True,
-            "enterprise_monitoring": True,
-            "auto_deployment": True,
+            "jwt_authentication": True,
+            "rbac_authorization": True,
+            "multi_factor_auth": True,
+            "database_connections": True,
+            "project_management": True,
+            "code_execution_studio": True,
+            "admin_panel": True,
+            "audit_logging": True,
+            "rate_limiting": True,
+            "enterprise_security": True,
         },
         "endpoints": {
             "docs": "/docs",
             "health": "/health",
             "auth": f"{settings.API_V1_STR}/auth",
+            "admin": f"{settings.API_V1_STR}/admin",
+            "connections": f"{settings.API_V1_STR}/connections",
             "projects": f"{settings.API_V1_STR}/projects",
-            "specifications": f"{settings.API_V1_STR}/specifications", 
-            "agents": f"{settings.API_V1_STR}/agents",
+            "studio": f"{settings.API_V1_STR}/studio",
+        },
+        "total_endpoints": 23,
+        "endpoint_breakdown": {
+            "authentication": 5,
+            "admin_panel": 6, 
+            "data_sources": 6,
+            "projects": 3,
+            "studio": 3
         },
     }
 

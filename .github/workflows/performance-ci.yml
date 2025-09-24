@@ -1,0 +1,353 @@
+name: 📊 Performance CI/CD & Monitoring
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run daily at 2 AM UTC for performance monitoring
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      performance_threshold:
+        description: 'Minimum performance score (0-100)'
+        default: '95'
+        required: true
+      run_full_audit:
+        description: 'Run comprehensive performance audit'
+        type: boolean
+        default: true
+
+jobs:
+  performance-audit:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18, 20]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm ci
+        npm install -g @lhci/cli
+        
+    - name: Start application server
+      run: |
+        npm run start &
+        npx wait-on http://localhost:3000 --timeout 60000
+        
+    - name: Run Lighthouse CI
+      run: npm run lighthouse:ci
+      env:
+        LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+        
+    - name: Run Performance Test Suite
+      run: npm run perf:test
+      
+    - name: Upload Lighthouse reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: lighthouse-reports-${{ matrix.node-version }}
+        path: |
+          .lighthouseci/
+          lighthouse-report.html
+          performance-reports/
+        retention-days: 30
+        
+    - name: Performance Budget Check
+      run: |
+        node -e "
+        const fs = require('fs');
+        const reports = JSON.parse(fs.readFileSync('./performance-reports/performance-report.json', 'utf8'));
+        
+        const thresholds = {
+          performance: 95,
+          fcp: 1500,
+          lcp: 2500,
+          cls: 0.1,
+          fid: 100
+        };
+        
+        let failed = false;
+        const failures = [];
+        
+        reports.lighthouse.forEach(result => {
+          if (result.performance < thresholds.performance) {
+            failures.push(\`Performance score \${result.performance} < \${thresholds.performance} for \${result.url}\`);
+            failed = true;
+          }
+          if (result.fcp > thresholds.fcp) {
+            failures.push(\`FCP \${Math.round(result.fcp)}ms > \${thresholds.fcp}ms for \${result.url}\`);
+            failed = true;
+          }
+          if (result.lcp > thresholds.lcp) {
+            failures.push(\`LCP \${Math.round(result.lcp)}ms > \${thresholds.lcp}ms for \${result.url}\`);
+            failed = true;
+          }
+          if (result.cls > thresholds.cls) {
+            failures.push(\`CLS \${result.cls.toFixed(3)} > \${thresholds.cls} for \${result.url}\`);
+            failed = true;
+          }
+        });
+        
+        if (failed) {
+          console.error('❌ Performance budget exceeded:');
+          failures.forEach(failure => console.error('  -', failure));
+          process.exit(1);
+        } else {
+          console.log('✅ All performance budgets passed');
+        }
+        "
+        
+    - name: Comment Performance Results on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          try {
+            const reports = JSON.parse(fs.readFileSync('./performance-reports/performance-report.json', 'utf8'));
+            const summary = reports.summary;
+            
+            const comment = `
+          ## 📊 Performance Audit Results
+          
+          **Performance Summary:**
+          - 🎯 **Performance Score**: ${summary.averagePerformanceScore}/100
+          - ⚡ **First Contentful Paint**: ${summary.averageFCP}ms
+          - 🖼️ **Largest Contentful Paint**: ${summary.averageLCP}ms
+          - 📐 **Cumulative Layout Shift**: ${summary.averageCLS}
+          - 🔧 **Total Recommendations**: ${summary.totalRecommendations}
+          - ⚠️ **High Priority Issues**: ${summary.highPriorityIssues}
+          
+          **Performance Targets Status:**
+          ${summary.averagePerformanceScore >= 95 ? '✅' : '❌'} Performance Score (target: 95+)
+          ${summary.averageFCP <= 1500 ? '✅' : '❌'} First Contentful Paint (target: <1.5s)
+          ${summary.averageLCP <= 2500 ? '✅' : '❌'} Largest Contentful Paint (target: <2.5s)
+          ${summary.averageCLS <= 0.1 ? '✅' : '❌'} Cumulative Layout Shift (target: <0.1)
+          
+          **Detailed Results:**
+          | URL | Device | Performance | FCP | LCP | CLS |
+          |-----|--------|-------------|-----|-----|-----|
+          ${reports.lighthouse.map(r => 
+            `| ${r.url} | ${r.device} | ${r.performance} | ${Math.round(r.fcp)}ms | ${Math.round(r.lcp)}ms | ${r.cls.toFixed(3)} |`
+          ).join('\n')}
+          
+          ${summary.highPriorityIssues > 0 ? `
+          **⚠️ High Priority Recommendations:**
+          ${reports.recommendations
+            .filter(r => r.priority === 'high')
+            .slice(0, 5)
+            .map(r => `- ${r.message}`)
+            .join('\n')}
+          ` : ''}
+          
+          [View Full Performance Dashboard](https://dabtcavila.github.io/DafelHub/performance-dashboard.html)
+          `;
+          
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          } catch (error) {
+            console.log('Could not create performance comment:', error.message);
+          }
+
+  performance-regression:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout PR branch
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run PR performance test
+      run: |
+        npm run start &
+        npx wait-on http://localhost:3000 --timeout 60000
+        npm run perf:test -- --output ./pr-performance-results
+        
+    - name: Checkout base branch
+      run: |
+        git fetch origin ${{ github.base_ref }}
+        git checkout origin/${{ github.base_ref }}
+        
+    - name: Install base branch dependencies
+      run: npm ci
+      
+    - name: Run base branch performance test
+      run: |
+        pkill -f "serve docs" || true
+        npm run start &
+        npx wait-on http://localhost:3000 --timeout 60000
+        npm run perf:test -- --output ./base-performance-results
+        
+    - name: Compare performance results
+      run: |
+        node -e "
+        const fs = require('fs');
+        
+        const prResults = JSON.parse(fs.readFileSync('./pr-performance-results/performance-report.json', 'utf8'));
+        const baseResults = JSON.parse(fs.readFileSync('./base-performance-results/performance-report.json', 'utf8'));
+        
+        const prScore = prResults.summary.averagePerformanceScore;
+        const baseScore = baseResults.summary.averagePerformanceScore;
+        const scoreDiff = prScore - baseScore;
+        
+        const prFCP = prResults.summary.averageFCP;
+        const baseFCP = baseResults.summary.averageFCP;
+        const fcpDiff = prFCP - baseFCP;
+        
+        const prLCP = prResults.summary.averageLCP;
+        const baseLCP = baseResults.summary.averageLCP;
+        const lcpDiff = prLCP - baseLCP;
+        
+        console.log('## Performance Regression Analysis');
+        console.log('');
+        console.log('| Metric | Base | PR | Change | Status |');
+        console.log('|--------|------|----|---------|---------| ');
+        console.log(\`| Performance Score | \${baseScore} | \${prScore} | \${scoreDiff > 0 ? '+' : ''}\${scoreDiff} | \${Math.abs(scoreDiff) <= 5 ? '✅' : '⚠️'} |\`);
+        console.log(\`| First Contentful Paint | \${Math.round(baseFCP)}ms | \${Math.round(prFCP)}ms | \${fcpDiff > 0 ? '+' : ''}\${Math.round(fcpDiff)}ms | \${Math.abs(fcpDiff) <= 100 ? '✅' : '⚠️'} |\`);
+        console.log(\`| Largest Contentful Paint | \${Math.round(baseLCP)}ms | \${Math.round(prLCP)}ms | \${lcpDiff > 0 ? '+' : ''}\${Math.round(lcpDiff)}ms | \${Math.abs(lcpDiff) <= 200 ? '✅' : '⚠️'} |\`);
+        
+        // Fail if significant regression
+        if (scoreDiff < -10 || fcpDiff > 200 || lcpDiff > 300) {
+          console.log('');
+          console.log('❌ Significant performance regression detected!');
+          process.exit(1);
+        } else {
+          console.log('');
+          console.log('✅ No significant performance regression detected.');
+        }
+        "
+
+  deploy-performance-dashboard:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [performance-audit]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build performance reports
+      run: |
+        npm run start &
+        npx wait-on http://localhost:3000 --timeout 60000
+        npm run perf:test
+        
+    - name: Copy performance assets to docs
+      run: |
+        mkdir -p docs/performance
+        cp -r performance-reports/* docs/performance/
+        cp public/performance-dashboard.html docs/performance/
+        cp -r public/js docs/performance/
+        
+    - name: Update performance badge
+      run: |
+        node -e "
+        const fs = require('fs');
+        const reports = JSON.parse(fs.readFileSync('./performance-reports/performance-report.json', 'utf8'));
+        const score = reports.summary.averagePerformanceScore;
+        const color = score >= 90 ? 'brightgreen' : score >= 70 ? 'yellow' : 'red';
+        
+        const badge = {
+          schemaVersion: 1,
+          label: 'Performance',
+          message: \`\${score}/100\`,
+          color: color
+        };
+        
+        fs.writeFileSync('./docs/performance/badge.json', JSON.stringify(badge, null, 2));
+        "
+        
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs
+        
+    - name: Update performance status
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const reports = JSON.parse(fs.readFileSync('./performance-reports/performance-report.json', 'utf8'));
+          
+          const summary = reports.summary;
+          const state = summary.averagePerformanceScore >= 95 ? 'success' : 
+                       summary.averagePerformanceScore >= 70 ? 'pending' : 'failure';
+          
+          await github.rest.repos.createCommitStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            sha: context.sha,
+            state: state,
+            target_url: 'https://dabtcavila.github.io/DafelHub/performance/',
+            description: `Performance Score: ${summary.averagePerformanceScore}/100`,
+            context: 'Performance Audit'
+          });
+
+  lighthouse-server:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Setup Lighthouse CI Server
+      run: |
+        npm install -g @lhci/server
+        
+    - name: Start LHCI Server
+      run: |
+        lhci server --port=9001 &
+        echo "LHCI Server started on port 9001"
+        
+    - name: Health check
+      run: |
+        sleep 10
+        curl -f http://localhost:9001 || exit 1

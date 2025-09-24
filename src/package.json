@@ -1,0 +1,85 @@
+{
+  "name": "@dafelhub/interactive-components",
+  "version": "1.0.0",
+  "description": "Premium interactive component library with sophisticated animations and effects",
+  "main": "components/index.ts",
+  "types": "components/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint . --ext .ts,.tsx",
+    "test": "jest",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
+  },
+  "keywords": [
+    "react",
+    "typescript",
+    "components",
+    "animations",
+    "framer-motion",
+    "interactive",
+    "ui",
+    "enterprise",
+    "premium",
+    "glassmorphism",
+    "3d-effects",
+    "micro-interactions"
+  ],
+  "author": "DafelHub Team",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=17.0.0",
+    "react-dom": ">=17.0.0",
+    "framer-motion": ">=10.0.0"
+  },
+  "dependencies": {
+    "framer-motion": "^10.16.4"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "eslint-plugin-react": "^7.0.0",
+    "eslint-plugin-react-hooks": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DabtcAvila/DafelHub.git",
+    "directory": "src"
+  },
+  "bugs": {
+    "url": "https://github.com/DabtcAvila/DafelHub/issues"
+  },
+  "homepage": "https://dabtcavila.github.io/DafelHub",
+  "files": [
+    "components/",
+    "lib/",
+    "*.d.ts",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "import": "./components/index.ts",
+      "require": "./components/index.ts",
+      "types": "./components/index.ts"
+    },
+    "./components": {
+      "import": "./components/index.ts",
+      "require": "./components/index.ts",
+      "types": "./components/index.ts"
+    },
+    "./animations": {
+      "import": "./lib/animations.ts",
+      "require": "./lib/animations.ts",
+      "types": "./lib/animations.ts"
+    }
+  },
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  }
+}

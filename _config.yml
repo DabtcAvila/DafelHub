@@ -1,37 +1,84 @@
-# GitHub Pages Configuration for DafelHub
-# Jekyll configuration for GitHub Pages
+# 🚀 DafelHub - GitHub Pages Configuration
+# Optimized Jekyll configuration for Enterprise SaaS Platform
 
-title: "DafelHub - Enterprise SaaS Platform"
-description: "Spec-Driven Development with Multi-Agent AI Orchestration"
+title: "DafelHub - Enterprise AI & SaaS Platform"
+description: "Production-ready Next.js platform with PostgreSQL connectors, AES-256-GCM encryption, and Dashboard Studio"
 url: "https://dabtcavila.github.io"
 baseurl: "/DafelHub"
+permalink: pretty
 
-# Author info
+# Site metadata
 author:
-  name: "Dafel Consulting"
-  email: "contact@dafelconsulting.com"
+  name: "Dafel Technologies"
+  email: "contact@dafeltechnologies.com"
+  url: "https://dafeltechnologies.com"
 
-# Build settings
+# Performance-optimized build settings
 markdown: kramdown
 highlighter: rouge
-theme: minima
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: 'highlight'
+    span:
+      line_numbers: false
 
-# Plugins
+# Performance plugins
 plugins:
   - jekyll-feed
   - jekyll-sitemap
   - jekyll-seo-tag
+  - jekyll-compress-images
+  - jekyll-minifier
+  - jekyll-babel
+  - jekyll-autoprefixer
 
-# Include/Exclude
+# Jekyll Minifier settings for performance
+jekyll-minifier:
+  preserve_php: true
+  preserve_ruby: false
+  remove_spaces_inside_tags: true
+  remove_multi_spaces: true
+  remove_comments: true
+  remove_intertag_spaces: false
+  remove_quotes: false
+  compress_css: true
+  compress_javascript: true
+  compress_json: true
+  simple_doctype: false
+  remove_script_attributes: false
+  remove_style_attributes: false
+  remove_link_attributes: false
+  remove_form_attributes: false
+  remove_input_attributes: false
+  remove_javascript_protocol: false
+  remove_http_protocol: false
+  remove_https_protocol: false
+  preserve_line_breaks: false
+  simple_boolean_attributes: false
+
+# Image compression
+compress_images:
+  quality: 85
+  progressive: true
+  strip: true
+
+# Include files and directories
 include:
   - docs/
   - assets/
+  - public/
   - api/
-  - parallel-system.html
-  - agents.html
+  - "*.html"
+  - "*.js"
+  - "*.css"
+  - .htaccess
+  - .nojekyll
 
+# Exclude from processing
 exclude:
-  - src/
+  - src/dafelhub/
   - tests/
   - scripts/
   - docker-compose.yml
@@ -39,39 +86,97 @@ exclude:
   - requirements.txt
   - pyproject.toml
   - deploy.sh
-  - test_basic.py
+  - "*.py"
   - memory/
-  - .env.example
+  - logs/
+  - uploads/
+  - .env*
+  - node_modules/
+  - .git/
+  - .github/
+  - Gemfile*
+  - package*.json
+  - .lighthouserc.js
+  - tailwind.config.js
 
-# Collections
+# Collections for organized content
 collections:
   docs:
     output: true
-    permalink: /:collection/:name/
+    permalink: /docs/:name/
+  components:
+    output: true
+    permalink: /components/:name/
+  performance:
+    output: true
+    permalink: /performance/:name/
 
-# Defaults
+# Defaults for different content types
 defaults:
   - scope:
       path: ""
       type: "posts"
     values:
       layout: "post"
+      comments: false
   - scope:
       path: ""
       type: "docs"
     values:
       layout: "default"
+      sidebar: true
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
+  - scope:
+      path: "performance"
+    values:
+      layout: "performance"
+      sidebar: false
 
-# SEO
-google_analytics: # Add your GA tracking ID
+# SEO and Analytics
+google_analytics: G-DAFELHUB123 # Add your actual GA4 ID
 github_username: DabtcAvila
 repository: DabtcAvila/DafelHub
+logo: /assets/images/dafel-logo.png
+twitter:
+  username: DafelTech
+  card: summary_large_image
 
 # Social links
 social_links:
   github: DabtcAvila
-  linkedin: # Add your LinkedIn
+  twitter: DafelTech
+  linkedin: dafel-consulting
 
-# Features
+# Site features
 show_excerpts: true
-livereload: true
+livereload: false
+future: false
+unpublished: false
+safe: true
+incremental: true
+profile: false
+strict_front_matter: true
+
+# Pagination
+paginate: 10
+paginate_path: "/page:num/"
+
+# Feed settings
+feed:
+  posts_limit: 20
+  excerpt_only: true
+
+# Liquid settings
+liquid:
+  error_mode: warn
+  strict_filters: false
+  strict_variables: false
+
+# Development settings (overridden in production)
+host: localhost
+port: 4000
+show_dir_listing: false

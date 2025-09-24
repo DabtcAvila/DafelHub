@@ -1,0 +1,445 @@
+name: 🏗️ Build Optimization & Asset Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - '**.js'
+      - '**.css'
+      - '**.html'
+      - 'assets/**'
+      - 'public/**'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      optimize_level:
+        description: 'Optimization level (basic|standard|aggressive)'
+        default: 'standard'
+        required: true
+
+jobs:
+  analyze-assets:
+    runs-on: ubuntu-latest
+    outputs:
+      changes-detected: ${{ steps.changes.outputs.assets }}
+      optimization-needed: ${{ steps.analysis.outputs.needed }}
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Detect Changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            assets:
+              - 'assets/**'
+              - 'public/**'
+              - '*.js'
+              - '*.css'
+              - '*.html'
+
+      - name: 📊 Analyze Asset Sizes
+        id: analysis
+        run: |
+          echo "Analyzing asset sizes..."
+          
+          # Check for large files
+          large_files=$(find . -name "*.js" -o -name "*.css" -o -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" | \
+            xargs ls -la | awk '$5 > 500000 {print $9 " (" $5 " bytes)"}' | head -10)
+          
+          if [ -n "$large_files" ]; then
+            echo "Large files detected:"
+            echo "$large_files"
+            echo "needed=true" >> $GITHUB_OUTPUT
+          else
+            echo "needed=false" >> $GITHUB_OUTPUT
+          fi
+
+  optimize-images:
+    runs-on: ubuntu-latest
+    needs: analyze-assets
+    if: needs.analyze-assets.outputs.changes-detected == 'true'
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📦 Install Image Optimization Tools
+        run: |
+          npm install -g imagemin-cli
+          npm install -g svgo
+          npm install imagemin imagemin-mozjpeg imagemin-pngquant imagemin-webp
+          sudo apt-get update
+          sudo apt-get install -y webp
+
+      - name: 🖼️ Optimize Images
+        run: |
+          echo "🖼️ Starting image optimization..."
+          
+          # Create optimized directory
+          mkdir -p optimized-assets
+          
+          # Optimize PNG files
+          if find . -name "*.png" -type f | grep -q .; then
+            echo "Optimizing PNG files..."
+            find . -name "*.png" -not -path "./node_modules/*" -not -path "./.git/*" | while read file; do
+              output_dir="optimized-assets/$(dirname "$file")"
+              mkdir -p "$output_dir"
+              
+              # Original PNG optimization
+              imagemin "$file" --out-dir="$output_dir" --plugin.pngquant.quality=0.8-0.9
+              
+              # Convert to WebP
+              cwebp -q 85 "$file" -o "${output_dir}/$(basename "$file" .png).webp"
+            done
+          fi
+          
+          # Optimize JPEG files
+          if find . -name "*.jpg" -o -name "*.jpeg" -type f | grep -q .; then
+            echo "Optimizing JPEG files..."
+            find . \( -name "*.jpg" -o -name "*.jpeg" \) -not -path "./node_modules/*" -not -path "./.git/*" | while read file; do
+              output_dir="optimized-assets/$(dirname "$file")"
+              mkdir -p "$output_dir"
+              
+              # Original JPEG optimization
+              imagemin "$file" --out-dir="$output_dir" --plugin.mozjpeg.quality=85
+              
+              # Convert to WebP
+              cwebp -q 85 "$file" -o "${output_dir}/$(basename "$file" .jpg).webp"
+            done
+          fi
+          
+          # Optimize SVG files
+          if find . -name "*.svg" -type f | grep -q .; then
+            echo "Optimizing SVG files..."
+            find . -name "*.svg" -not -path "./node_modules/*" -not -path "./.git/*" | while read file; do
+              output_dir="optimized-assets/$(dirname "$file")"
+              mkdir -p "$output_dir"
+              svgo "$file" --output="${output_dir}/$(basename "$file")"
+            done
+          fi
+          
+          echo "✅ Image optimization completed"
+
+      - name: 📊 Generate Optimization Report
+        run: |
+          echo "# 🖼️ Image Optimization Report" > optimization-report.md
+          echo "Generated on $(date)" >> optimization-report.md
+          echo "" >> optimization-report.md
+          
+          # Calculate total size savings
+          original_size=0
+          optimized_size=0
+          
+          if [ -d "optimized-assets" ]; then
+            find . -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.svg" | while read file; do
+              if [ -f "$file" ]; then
+                size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null || echo 0)
+                original_size=$((original_size + size))
+              fi
+            done
+            
+            find optimized-assets -name "*" -type f | while read file; do
+              if [ -f "$file" ]; then
+                size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null || echo 0)
+                optimized_size=$((optimized_size + size))
+              fi
+            done
+            
+            echo "- **Original Size**: $(du -sh . | cut -f1)" >> optimization-report.md
+            echo "- **Optimized Size**: $(du -sh optimized-assets | cut -f1)" >> optimization-report.md
+            echo "- **WebP Conversions**: $(find optimized-assets -name "*.webp" | wc -l)" >> optimization-report.md
+          fi
+
+      - name: 📤 Upload Optimized Assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: optimized-assets
+          path: optimized-assets/
+          retention-days: 7
+
+  optimize-javascript:
+    runs-on: ubuntu-latest
+    needs: analyze-assets
+    if: needs.analyze-assets.outputs.changes-detected == 'true'
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📦 Install JS Optimization Tools
+        run: |
+          npm install -g terser
+          npm install -g clean-css-cli
+          npm install -g html-minifier
+
+      - name: ⚡ Optimize JavaScript Files
+        run: |
+          echo "⚡ Starting JavaScript optimization..."
+          
+          # Create optimized directory
+          mkdir -p optimized-js
+          
+          # Minify JavaScript files
+          find . -name "*.js" -not -path "./node_modules/*" -not -path "./.git/*" -not -name "*.min.js" | while read file; do
+            output_dir="optimized-js/$(dirname "$file")"
+            mkdir -p "$output_dir"
+            filename=$(basename "$file" .js)
+            
+            echo "Optimizing: $file"
+            
+            # Basic minification
+            terser "$file" \
+              --compress drop_console=true,drop_debugger=true,dead_code=true \
+              --mangle \
+              --output "${output_dir}/${filename}.min.js"
+            
+            # Create source map
+            terser "$file" \
+              --compress \
+              --mangle \
+              --source-map "url=${filename}.min.js.map" \
+              --output "${output_dir}/${filename}.min.js"
+          done
+          
+          echo "✅ JavaScript optimization completed"
+
+      - name: 🎨 Optimize CSS Files
+        run: |
+          echo "🎨 Starting CSS optimization..."
+          
+          # Create optimized directory
+          mkdir -p optimized-css
+          
+          # Minify CSS files
+          find . -name "*.css" -not -path "./node_modules/*" -not -path "./.git/*" -not -name "*.min.css" | while read file; do
+            output_dir="optimized-css/$(dirname "$file")"
+            mkdir -p "$output_dir"
+            filename=$(basename "$file" .css)
+            
+            echo "Optimizing: $file"
+            
+            cleancss -o "${output_dir}/${filename}.min.css" "$file"
+          done
+          
+          echo "✅ CSS optimization completed"
+
+      - name: 📝 Optimize HTML Files
+        run: |
+          echo "📝 Starting HTML optimization..."
+          
+          # Create optimized directory
+          mkdir -p optimized-html
+          
+          # Minify HTML files
+          find . -name "*.html" -not -path "./node_modules/*" -not -path "./.git/*" | while read file; do
+            output_dir="optimized-html/$(dirname "$file")"
+            mkdir -p "$output_dir"
+            filename=$(basename "$file")
+            
+            echo "Optimizing: $file"
+            
+            html-minifier \
+              --remove-comments \
+              --remove-optional-tags \
+              --remove-redundant-attributes \
+              --remove-script-type-attributes \
+              --remove-tag-whitespace \
+              --use-short-doctype \
+              --minify-css true \
+              --minify-js true \
+              --collapse-whitespace \
+              "$file" > "${output_dir}/${filename}"
+          done
+          
+          echo "✅ HTML optimization completed"
+
+      - name: 📤 Upload Optimized Code
+        uses: actions/upload-artifact@v4
+        with:
+          name: optimized-code
+          path: |
+            optimized-js/
+            optimized-css/
+            optimized-html/
+          retention-days: 7
+
+  performance-budget:
+    runs-on: ubuntu-latest
+    needs: [optimize-images, optimize-javascript]
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📥 Download Optimized Assets
+        uses: actions/download-artifact@v4
+        with:
+          name: optimized-assets
+          path: ./optimized-assets
+
+      - name: 📥 Download Optimized Code
+        uses: actions/download-artifact@v4
+        with:
+          name: optimized-code
+          path: ./optimized-code
+
+      - name: 📊 Calculate Performance Budget
+        run: |
+          echo "📊 Calculating performance budget..."
+          
+          # Define budget limits (in bytes)
+          JS_BUDGET=250000    # 250KB
+          CSS_BUDGET=100000   # 100KB
+          IMAGE_BUDGET=2000000 # 2MB
+          TOTAL_BUDGET=5000000 # 5MB
+          
+          # Calculate current sizes
+          js_size=$(find . -name "*.js" -exec stat -f%z {} + 2>/dev/null | awk '{sum+=$1} END {print sum}' || \
+                    find . -name "*.js" -exec stat -c%s {} + 2>/dev/null | awk '{sum+=$1} END {print sum}' || echo 0)
+          css_size=$(find . -name "*.css" -exec stat -f%z {} + 2>/dev/null | awk '{sum+=$1} END {print sum}' || \
+                     find . -name "*.css" -exec stat -c%s {} + 2>/dev/null | awk '{sum+=$1} END {print sum}' || echo 0)
+          image_size=$(find . \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.webp" \) -exec stat -f%z {} + 2>/dev/null | awk '{sum+=$1} END {print sum}' || \
+                       find . \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.webp" \) -exec stat -c%s {} + 2>/dev/null | awk '{sum+=$1} END {print sum}' || echo 0)
+          total_size=$((js_size + css_size + image_size))
+          
+          echo "# 💰 Performance Budget Report" > budget-report.md
+          echo "" >> budget-report.md
+          echo "| Asset Type | Current Size | Budget | Status |" >> budget-report.md
+          echo "|------------|--------------|--------|---------|" >> budget-report.md
+          
+          # JavaScript budget
+          js_kb=$((js_size / 1024))
+          js_budget_kb=$((JS_BUDGET / 1024))
+          js_status=$([ $js_size -le $JS_BUDGET ] && echo "✅ PASS" || echo "❌ FAIL")
+          echo "| JavaScript | ${js_kb}KB | ${js_budget_kb}KB | $js_status |" >> budget-report.md
+          
+          # CSS budget
+          css_kb=$((css_size / 1024))
+          css_budget_kb=$((CSS_BUDGET / 1024))
+          css_status=$([ $css_size -le $CSS_BUDGET ] && echo "✅ PASS" || echo "❌ FAIL")
+          echo "| CSS | ${css_kb}KB | ${css_budget_kb}KB | $css_status |" >> budget-report.md
+          
+          # Image budget
+          image_mb=$((image_size / 1024 / 1024))
+          image_budget_mb=$((IMAGE_BUDGET / 1024 / 1024))
+          image_status=$([ $image_size -le $IMAGE_BUDGET ] && echo "✅ PASS" || echo "❌ FAIL")
+          echo "| Images | ${image_mb}MB | ${image_budget_mb}MB | $image_status |" >> budget-report.md
+          
+          # Total budget
+          total_mb=$((total_size / 1024 / 1024))
+          total_budget_mb=$((TOTAL_BUDGET / 1024 / 1024))
+          total_status=$([ $total_size -le $TOTAL_BUDGET ] && echo "✅ PASS" || echo "❌ FAIL")
+          echo "| **Total** | **${total_mb}MB** | **${total_budget_mb}MB** | **$total_status** |" >> budget-report.md
+          
+          echo "" >> budget-report.md
+          echo "Generated on $(date)" >> budget-report.md
+          
+          cat budget-report.md
+          
+          # Fail if budget exceeded
+          if [ $total_size -gt $TOTAL_BUDGET ]; then
+            echo "❌ Performance budget exceeded!"
+            exit 1
+          else
+            echo "✅ Performance budget passed!"
+          fi
+
+      - name: 📊 Create Budget Summary
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            
+            if (fs.existsSync('budget-report.md')) {
+              const budgetReport = fs.readFileSync('budget-report.md', 'utf8');
+              
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: budgetReport
+              });
+            }
+
+  build-validation:
+    runs-on: ubuntu-latest
+    needs: [performance-budget]
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm ci --prefer-offline --no-audit
+
+      - name: 🧪 Validate Build Output
+        run: |
+          echo "🧪 Validating build output..."
+          
+          # Check required files exist
+          required_files=("index.html" "package.json" "_config.yml")
+          
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Required file missing: $file"
+              exit 1
+            else
+              echo "✅ Found: $file"
+            fi
+          done
+
+      - name: 🔍 HTML Validation
+        run: |
+          npm install -g html-validate
+          
+          echo "🔍 Validating HTML files..."
+          
+          find . -name "*.html" -not -path "./node_modules/*" | while read file; do
+            echo "Validating: $file"
+            html-validate "$file" || echo "⚠️ Validation issues in $file"
+          done
+
+      - name: 🎯 Accessibility Check
+        run: |
+          npm install -g @axe-core/cli
+          
+          # Start server for accessibility testing
+          npm run start &
+          PID=$!
+          
+          # Wait for server
+          sleep 10
+          
+          # Run accessibility tests
+          axe http://localhost:3000 --exit || echo "⚠️ Accessibility issues found"
+          
+          # Stop server
+          kill $PID 2>/dev/null || true
+
+      - name: ✅ Build Validation Complete
+        run: |
+          echo "✅ All build validations completed successfully!"
+          echo "🚀 Ready for deployment to GitHub Pages"

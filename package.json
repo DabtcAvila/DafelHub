@@ -9,7 +9,14 @@
     "start": "npx serve docs -l 3000",
     "deploy": "gh-pages -d docs",
     "lighthouse": "lighthouse http://localhost:3000 --output html --output-path ./lighthouse-report.html",
-    "test": "echo 'No tests specified'"
+    "lighthouse:ci": "lhci autorun",
+    "perf:test": "node scripts/performance-test.js",
+    "perf:test:desktop": "node scripts/performance-test.js --url http://localhost:3000",
+    "perf:test:full": "npm run start & sleep 5 && node scripts/performance-test.js && kill %1",
+    "perf:monitor": "npm run start & sleep 2 && open http://localhost:3000/performance-dashboard.html",
+    "perf:ci": "npm run start & sleep 5 && npm run lighthouse:ci && npm run perf:test && kill %1",
+    "test": "npm run perf:test",
+    "test:ci": "npm run perf:ci"
   },
   "repository": {
     "type": "git",
@@ -31,8 +38,12 @@
   },
   "homepage": "https://dabtcavila.github.io/DafelHub",
   "devDependencies": {
+    "@lhci/cli": "^0.12.0",
+    "chrome-launcher": "^1.1.0",
     "gh-pages": "^6.1.1",
+    "glob": "^10.3.10",
     "lighthouse": "^11.4.0",
+    "puppeteer": "^21.6.1",
     "serve": "^14.2.1"
   },
   "dependencies": {
